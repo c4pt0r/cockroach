@@ -7,7 +7,7 @@ package proto
 import proto1 "github.com/gogo/protobuf/proto"
 import math "math"
 
-// discarding unused import gogoproto "github.com/cockroachdb/gogoproto"
+// discarding unused import gogoproto "gogoproto"
 
 import io "io"
 import fmt "fmt"
@@ -712,11 +712,10 @@ func (m *TimeSeriesData) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -738,11 +737,10 @@ func (m *TimeSeriesData) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -764,10 +762,10 @@ func (m *TimeSeriesData) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -869,10 +867,10 @@ func (m *TimeSeriesQueryRequest) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -942,11 +940,10 @@ func (m *TimeSeriesQueryRequest_Query) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1030,10 +1027,10 @@ func (m *TimeSeriesQueryResponse) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1103,11 +1100,10 @@ func (m *TimeSeriesQueryResponse_Result) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1129,11 +1125,10 @@ func (m *TimeSeriesQueryResponse_Result) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1172,10 +1167,10 @@ func (m *TimeSeriesQueryResponse_Result) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthTimeseries
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}

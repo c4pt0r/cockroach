@@ -7,7 +7,7 @@ package proto
 import proto1 "github.com/gogo/protobuf/proto"
 import math "math"
 
-// discarding unused import gogoproto "github.com/cockroachdb/gogoproto"
+// discarding unused import gogoproto "gogoproto"
 import cockroach_util "github.com/cockroachdb/cockroach/util"
 
 import io "io"
@@ -773,11 +773,10 @@ func (m *Attributes) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1003,10 +1002,10 @@ func (m *RangeDescriptor) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1433,10 +1432,10 @@ func (m *NodeDescriptor) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1460,10 +1459,10 @@ func (m *NodeDescriptor) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1548,10 +1547,10 @@ func (m *StoreDescriptor) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1575,10 +1574,10 @@ func (m *StoreDescriptor) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1602,10 +1601,10 @@ func (m *StoreDescriptor) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthMetadata
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}

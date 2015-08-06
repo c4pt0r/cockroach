@@ -7,7 +7,7 @@ package proto
 import proto1 "github.com/gogo/protobuf/proto"
 import math "math"
 
-// discarding unused import gogoproto "github.com/cockroachdb/gogoproto"
+// discarding unused import gogoproto "gogoproto"
 
 import io "io"
 import fmt "fmt"
@@ -1539,10 +1539,10 @@ func (m *NotLeaderError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1569,10 +1569,10 @@ func (m *NotLeaderError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1815,10 +1815,10 @@ func (m *RangeKeyMismatchError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1890,10 +1890,10 @@ func (m *ReadWithinUncertaintyIntervalError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1917,10 +1917,10 @@ func (m *ReadWithinUncertaintyIntervalError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -1989,10 +1989,10 @@ func (m *TransactionAbortedError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2061,10 +2061,10 @@ func (m *TransactionPushError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2091,10 +2091,10 @@ func (m *TransactionPushError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2163,10 +2163,10 @@ func (m *TransactionRetryError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2235,10 +2235,10 @@ func (m *TransactionStatusError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2262,11 +2262,10 @@ func (m *TransactionStatusError) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2333,10 +2332,10 @@ func (m *WriteIntentError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2423,10 +2422,10 @@ func (m *WriteTooOldError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2450,10 +2449,10 @@ func (m *WriteTooOldError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2566,10 +2565,10 @@ func (m *ConditionFailedError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2641,10 +2640,10 @@ func (m *LeaseRejectedError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2668,10 +2667,10 @@ func (m *LeaseRejectedError) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2740,10 +2739,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2770,10 +2769,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2800,10 +2799,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2830,10 +2829,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2860,10 +2859,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2890,10 +2889,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2920,10 +2919,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2950,10 +2949,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -2980,10 +2979,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3010,10 +3009,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3040,10 +3039,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3070,10 +3069,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3100,10 +3099,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3130,10 +3129,10 @@ func (m *ErrorDetail) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3205,11 +3204,10 @@ func (m *Error) Unmarshal(data []byte) error {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			postIndex := iNdEx + int(stringLen)
+			if stringLen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + intStringLen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
@@ -3248,10 +3246,10 @@ func (m *Error) Unmarshal(data []byte) error {
 					break
 				}
 			}
+			postIndex := iNdEx + msglen
 			if msglen < 0 {
 				return ErrInvalidLengthErrors
 			}
-			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
