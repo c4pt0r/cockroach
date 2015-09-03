@@ -580,29 +580,29 @@ func (r *Replica) checkBatchRequest(bArgs *proto.BatchRequest) error {
 		args := bArgs.Requests[i].GetValue().(proto.Request)
 		header := args.Header()
 		if args.Method() == proto.EndTransaction && len(bArgs.Requests) != 1 {
-			return util.Error("cannot mix EndTransaction with other operations in a batch")
+			return util.Errorf("cannot mix EndTransaction with other operations in a batch")
 		}
 		if !header.Timestamp.Equal(bArgs.Timestamp) {
 			return util.Error("conflicting timestamp on call in batch")
 		}
 		if header.GetUserPriority() != bArgs.GetUserPriority() {
-			return util.Error("conflicting user priority on call in batch")
+			return util.Errorf("conflicting user priority on call in batch")
 		}
 		if !header.Txn.Equal(bArgs.Txn) {
-			return util.Error("conflicting transaction on call in transactional batch")
+			return util.Errorf("conflicting transaction on call in transactional batch")
 		}
 		if proto.IsReadOnly(args) && header.ReadConsistency == proto.INCONSISTENT {
 			// Disallow any inconsistent reads within txns.
 			if header.Txn != nil {
-				return util.Error("cannot allow inconsistent reads within a transaction")
+				return util.Errorf("cannot allow inconsistent reads within a transaction")
 			}
 		} else if proto.IsReadOnly(args) && header.ReadConsistency == proto.CONSENSUS {
-			return util.Error("consensus reads not implemented")
+			return util.Errorf("consensus reads not implemented")
 		}
 		if i == 0 {
 			isReadOnly = proto.IsReadOnly(args)
 		} else if proto.IsReadOnly(args) != isReadOnly {
-			return util.Error("batch mixes read-only and write requests")
+			return util.Errorf("batch mixes read-only and write requests")
 		}
 	}
 	return nil

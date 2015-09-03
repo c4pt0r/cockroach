@@ -91,6 +91,9 @@ func IsRange(args Request) bool {
 }
 
 // CanBatch returns true if the request type can be part of a batch request.
+// TODO(tschottdorf): everything should be batchable. Those requests which
+// currently are !CanBatch should simply have to be alone in their batch.
+// That is easier side only BatchRequest must be supported.
 func CanBatch(args Request) bool {
 	return IsRead(args) || IsWrite(args)
 }
