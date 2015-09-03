@@ -316,8 +316,8 @@ func TestGCQueueIntentResolution(t *testing.T) {
 
 	// Two transactions.
 	for i := 0; i < 2; i++ {
-		// 50,000 puts per transaction.
-		for j := 0; j < 50000; j++ {
+		// 5 (TODO(spencerkimball): 50,000) puts per transaction.
+		for j := 0; j < 5; j++ {
 			pArgs := putArgs(proto.Key(fmt.Sprintf("%d-%05d", i, j)), []byte("value"), tc.rng.Desc().RangeID, tc.store.StoreID())
 			pArgs.Timestamp = makeTS(1, 0)
 			pArgs.Txn = txns[i]
