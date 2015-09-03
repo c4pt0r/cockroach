@@ -98,7 +98,4 @@ const (
 	// Batch implements batch processing of commands. This is a
 	// superset of the Batch method.
 	Batch
-
-	// Maintain this sentinel.
-	MethodMax
 )

@@ -23,10 +23,10 @@ import (
 	"github.com/cockroachdb/cockroach/util/retry"
 )
 
-// ResponseWithError is a tuple of a BatchResponse and an error. It is
-// used to return a BatchResponse with its associated error where that
-// entanglement is necessary (e.g. channels, methods that need to
-// return another error in addition to this one).
+// ResponseWithError is a tuple of a BatchResponse and an error. It is used to
+// pass around a BatchResponse with its associated error where that
+// entanglement is necessary (e.g. channels, methods that need to return
+// another error in addition to this one).
 type ResponseWithError struct {
 	Reply *BatchResponse
 	Err   error

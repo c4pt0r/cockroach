@@ -528,9 +528,9 @@ func (*MergeRequest) flags() int              { return isWrite }
 func (*TruncateLogRequest) flags() int        { return isWrite }
 func (*LeaderLeaseRequest) flags() int        { return isWrite }
 
-func (b *BatchRequest) flags() int {
+func (br *BatchRequest) flags() int {
 	var flags int
-	for _, union := range b.Requests {
+	for _, union := range br.Requests {
 		args := union.GetValue().(Request)
 		flags |= args.flags()
 	}

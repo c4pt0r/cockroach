@@ -467,7 +467,7 @@ message PushTxnResponse {
 }
 
 // A ResolveIntentRequest is arguments to the ResolveIntent()
-// method. It is esnt by transaction coordinators and after success
+// method. It is sent by transaction coordinators and after success
 // calling PushTxn to clean up write intents: either to remove them or
 // commit them.
 message ResolveIntentRequest {
