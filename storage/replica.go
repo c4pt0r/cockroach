@@ -515,6 +515,28 @@ func (r *Replica) SetLastVerificationTimestamp(timestamp proto.Timestamp) error 
 	return engine.MVCCPutProto(r.rm.Engine(), nil, key, proto.ZeroTimestamp, nil, &timestamp)
 }
 
+// setBatchTimestamps ensures that timestamps on individual requests are
+// offset by an incremental amount of logical ticks from the base timestamp
+// of the batch request (if that is non-zero and the batch is not in a Txn).
+// This has the effect of allowing self-overlapping commands within the batch,
+// which would otherwise result in an endless loop of WriteTooOldErrors.
+func setBatchTimestamps(bArgs *proto.BatchRequest) {
+	if bArgs.Txn != nil || bArgs.Timestamp.Equal(proto.ZeroTimestamp) ||
+		!proto.IsWrite(bArgs) {
+		return
+	}
+	for i, union := range bArgs.Requests {
+		// If we did this for PushTxn as well, conflict resolution would break
+		// because a batch full of pushes of the same Txn for different intents
+		// will push the pushee in iteration, bumping up its priority.
+		// Unfortunately PushTxn is flagged as a write command (is it really?).
+		// Interim solution.
+		if args := union.GetValue().(proto.Request); args.Method() != proto.PushTxn {
+			args.Header().Timestamp.Forward(bArgs.Timestamp.Add(0, int32(i)))
+		}
+	}
+}
+
 // AddCmd adds a command for execution on this range. The command's
 // affected keys are verified to be contained within the range and the
 // range's leadership is confirmed. The command is then dispatched
@@ -523,6 +545,10 @@ func (r *Replica) SetLastVerificationTimestamp(timestamp proto.Timestamp) error 
 func (r *Replica) AddCmd(ctx context.Context, args proto.Request) (reply proto.Response, err error) {
 	// Wrap non-batch requests in a batch if possible.
 	bArgs, ok := args.(*proto.BatchRequest)
+	// TODO(tschottdorf): everything should go into a Batch. Keeping some commands
+	// individual creates a lot of trouble on the coordinator side for nothing.
+	// Instead, just enforce that some commands must be alone in their batch.
+	// Then they can just be unwrapped hereabouts (admin commands).
 	if !ok && proto.CanBatch(args) {
 		bArgs = &proto.BatchRequest{
 			RequestHeader: *args.Header(),
@@ -540,6 +566,13 @@ func (r *Replica) AddCmd(ctx context.Context, args proto.Request) (reply proto.R
 				reply = args.CreateReply()
 			}
 		}()
+	}
+	if bArgs != nil {
+		// Fiddle with the timestamps to make sure that writes can overlap
+		// within this batch.
+		// TODO(tschottdorf): provisional feature to get back to passing tests.
+		// Have to discuss how we go about it.
+		setBatchTimestamps(bArgs)
 	}
 	// TODO(tschottdorf) Some (internal) requests go here directly, so they
 	// won't be traced.
@@ -582,8 +615,10 @@ func (r *Replica) checkBatchRequest(bArgs *proto.BatchRequest) error {
 		if args.Method() == proto.EndTransaction && len(bArgs.Requests) != 1 {
 			return util.Errorf("cannot mix EndTransaction with other operations in a batch")
 		}
-		if !header.Timestamp.Equal(bArgs.Timestamp) {
-			return util.Error("conflicting timestamp on call in batch")
+		// Compare only WallTime since logical ticks are used for self-overlapping
+		// batches (see setBatchTimestamps()).
+		if header.Timestamp.WallTime != bArgs.Timestamp.WallTime {
+			return util.Errorf("conflicting timestamp %s on call in batch at %s", header.Timestamp, bArgs.Timestamp)
 		}
 		if header.GetUserPriority() != bArgs.GetUserPriority() {
 			return util.Errorf("conflicting user priority on call in batch")
@@ -843,10 +878,13 @@ func (r *Replica) addWriteCmd(ctx context.Context, bArgs *proto.BatchRequest, wg
 			}
 		}
 	}
+
 	// Make sure the batch timestamp is copied consistently to each request.
+	// TODO(tschottdorf): self-overlap is real and I think we should deal with
+	// it. Hence, Forward() below instead of overwriting. See setBatchTimestamps.
 	for i := range bArgs.Requests {
 		args := bArgs.Requests[i].GetValue().(proto.Request)
-		args.Header().Timestamp = bArgs.Timestamp
+		args.Header().Timestamp.Forward(bArgs.Timestamp)
 	}
 	r.Unlock()
 
