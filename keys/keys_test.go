@@ -120,7 +120,7 @@ func TestRangeMetaKey(t *testing.T) {
 }
 
 // TestMetaPrefixLen asserts that both levels of meta keys have the same prefix length,
-// as MetaScanBounds and ValidateRangeMetaKey depend on this fact.
+// as MetaScanBounds, MetaReverseScanBounds and validateRangeMetaKey depend on this fact.
 func TestMetaPrefixLen(t *testing.T) {
 	if len(Meta1Prefix) != len(Meta2Prefix) {
 		t.Fatalf("Meta1Prefix %q and Meta2Prefix %q are not of equal length!", Meta1Prefix, Meta2Prefix)
@@ -139,18 +139,28 @@ func TestMetaScanBounds(t *testing.T) {
 			expEnd:   Meta1Prefix.PrefixEnd(),
 		},
 		{
-			key:      proto.Key("foo"),
-			expStart: proto.Key("foo").Next(),
-			expEnd:   proto.Key("foo")[:len(Meta1Prefix)].PrefixEnd(),
+			key:      proto.MakeKey(Meta2Prefix, proto.Key("foo")),
+			expStart: proto.MakeKey(Meta2Prefix, proto.Key("foo\x00")),
+			expEnd:   Meta2Prefix.PrefixEnd(),
+		},
+		{
+			key:      proto.MakeKey(Meta1Prefix, proto.Key("foo")),
+			expStart: proto.MakeKey(Meta1Prefix, proto.Key("foo\x00")),
+			expEnd:   Meta1Prefix.PrefixEnd(),
 		},
 		{
 			key:      proto.MakeKey(Meta1Prefix, proto.KeyMax),
 			expStart: proto.MakeKey(Meta1Prefix, proto.KeyMax),
 			expEnd:   Meta1Prefix.PrefixEnd(),
 		},
+		{
+			key:      Meta2KeyMax,
+			expStart: nil,
+			expEnd:   nil,
+		},
 	}
 	for i, test := range testCases {
-		resStart, resEnd := MetaScanBounds(test.key)
+		resStart, resEnd, _ := MetaScanBounds(test.key)
 		if !resStart.Equal(test.expStart) || !resEnd.Equal(test.expEnd) {
 			t.Errorf("%d: range bounds %q-%q don't match expected bounds %q-%q for key %q", i, resStart, resEnd, test.expStart, test.expEnd, test.key)
 		}
@@ -188,6 +198,11 @@ func TestMetaReverseScanBounds(t *testing.T) {
 			expStart: Meta1Prefix,
 			expEnd:   Meta2Prefix.Next(),
 		},
+		{
+			key:      Meta2KeyMax,
+			expStart: Meta2Prefix,
+			expEnd:   Meta2KeyMax.Next(),
+		},
 	}
 	for i, test := range testCases {
 		resStart, resEnd, _ := MetaReverseScanBounds(test.key)
@@ -208,11 +223,11 @@ func TestValidateRangeMetaKey(t *testing.T) {
 		{Meta1Prefix[:len(Meta1Prefix)-1], true},
 		{Meta1Prefix, false},
 		{proto.MakeKey(Meta1Prefix, proto.KeyMax), false},
-		{proto.MakeKey(Meta2Prefix, proto.KeyMax), true},
+		{proto.MakeKey(Meta2Prefix, proto.KeyMax), false},
 		{proto.MakeKey(Meta2Prefix, proto.KeyMax.Next()), true},
 	}
 	for i, test := range testCases {
-		err := ValidateRangeMetaKey(test.key)
+		err := validateRangeMetaKey(test.key)
 		if err != nil != test.expErr {
 			t.Errorf("%d: expected error? %t: %s", i, test.expErr, err)
 		}
