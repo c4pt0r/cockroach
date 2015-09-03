@@ -1264,8 +1264,10 @@ func (s *Store) ExecuteCmd(ctx context.Context, args proto.Request) (proto.Respo
 	trace := tracer.FromCtx(ctx)
 	// If the request has a zero timestamp, initialize to this node's clock.
 	header := args.Header()
-	if err := verifyKeys(header.Key, header.EndKey, proto.IsRange(args)); err != nil {
-		return nil, err
+	if args.Method() != proto.Batch { // TODO(tschottdorf)
+		if err := verifyKeys(header.Key, header.EndKey, proto.IsRange(args)); err != nil {
+			return nil, err
+		}
 	}
 	if !header.Timestamp.Equal(proto.ZeroTimestamp) {
 		if s.Clock().MaxOffset() > 0 {
