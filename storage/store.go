@@ -1417,6 +1417,7 @@ func (s *Store) resolveWriteIntentError(ctx context.Context, wiErr *proto.WriteI
 	header := args.Header()
 	bArgs := &proto.BatchRequest{
 		RequestHeader: proto.RequestHeader{
+			Timestamp:    header.Timestamp,
 			Txn:          header.Txn,
 			UserPriority: header.UserPriority,
 		},
