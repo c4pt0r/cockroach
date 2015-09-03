@@ -1465,6 +1465,7 @@ func TestRangeIdempotence(t *testing.T) {
 	var wg sync.WaitGroup
 	var count int64
 	incFunc := func(idx int) {
+		defer wg.Done()
 		args := incrementArgs([]byte("a"), 1, 1, tc.store.StoreID())
 		args.Header().Timestamp = tc.clock.Now()
 		if idx%2 == 0 {
@@ -1482,7 +1483,6 @@ func TestRangeIdempotence(t *testing.T) {
 		} else if idx%2 == 1 {
 			atomic.AddInt64(&count, reply.NewValue)
 		}
-		wg.Done()
 	}
 
 	wg.Add(numIncs)

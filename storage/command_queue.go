@@ -20,7 +20,7 @@ package storage
 import (
 	"sync"
 
-	"github.com/cockroachdb/cockroach/proto"
+	"github.com/cockroachdb/cockroach/keys"
 	"github.com/cockroachdb/cockroach/util/cache"
 )
 
@@ -74,45 +74,56 @@ func (cq *CommandQueue) onEvicted(key, value interface{}) {
 	}
 }
 
-// GetWait initializes the supplied wait group with the number of
-// executing commands which overlap the specified key range. If end is
-// empty, end is set to start.Next(), meaning the command affects a
-// single key. The caller should call wg.Wait() to wait for
-// confirmation that all gating commands have completed or
-// failed. readOnly is true if the requester is a read-only command;
-// false for read-write.
-func (cq *CommandQueue) GetWait(start, end proto.Key, readOnly bool, wg *sync.WaitGroup) {
-	// This gives us a memory-efficient end key if end is empty.
-	if len(end) == 0 {
-		end = start.Next()
-		start = end[:len(start)]
-	}
-	for _, c := range cq.cache.GetOverlaps(start, end) {
-		c := c.Value.(*cmd)
-		// Only add to the wait group if one of the commands isn't read-only.
-		if !readOnly || !c.readOnly {
-			c.pending = append(c.pending, wg)
-			wg.Add(1)
+// GetWait initializes the supplied wait group with the number of executing
+// commands which overlap the specified key ranges. If an end key is empty, it
+// only affects the start key. The caller should call wg.Wait() to wait for
+// confirmation that all gating commands have completed or failed. readOnly is
+// true if the requester is a read-only command; false for read-write. All
+// spans passed are added to the command queue simultaneously. That is, one can
+// add overlapping commands without them blocking on each other (in which case
+// the command would be deadlocked).
+func (cq *CommandQueue) GetWait(readOnly bool, wg *sync.WaitGroup, spans ...keys.Span) {
+	var pending []*[]*sync.WaitGroup
+	for _, span := range spans {
+		// This gives us a memory-efficient end key if end is empty.
+		start, end := span.Start, span.End
+		if len(end) == 0 {
+			end = start.Next()
+			start = end[:len(start)]
 		}
+		for _, c := range cq.cache.GetOverlaps(start, end) {
+			c := c.Value.(*cmd)
+			// Only add to the wait group if one of the commands isn't read-only.
+			if !readOnly || !c.readOnly {
+				pending = append(pending, &(c.pending))
+				wg.Add(1)
+			}
+		}
+	}
+	for _, p := range pending {
+		*p = append(*p, wg)
 	}
 }
 
-// Add adds a command to the queue which affects the specified key
-// range. If end is empty, it is set to start.Next(), meaning the
-// command affects a single key. The returned interface is the key for
-// the command queue and must be re-supplied on subsequent invocation
+// Add adds commands to the queue which affect the specified key ranges. Ranges
+// without an end key affect only the start key. The returned interface is the
+// key for the command queue and must be re-supplied on subsequent invocation
 // of Remove().
 //
-// Add should be invoked after waiting on already-executing,
-// overlapping commands via the WaitGroup initialized through
-// GetWait().
-func (cq *CommandQueue) Add(start, end proto.Key, readOnly bool) interface{} {
-	if len(end) == 0 {
-		end = start.Next()
+// Add should be invoked after waiting on already-executing, overlapping
+// commands via the WaitGroup initialized through GetWait().
+func (cq *CommandQueue) Add(readOnly bool, spans ...keys.Span) []interface{} {
+	var r []interface{}
+	for _, span := range spans {
+		start, end := span.Start, span.End
+		if len(end) == 0 {
+			end = start.Next()
+		}
+		key := cq.cache.NewKey(start, end)
+		cq.cache.Add(key, &cmd{readOnly: readOnly})
+		r = append(r, key)
 	}
-	key := cq.cache.NewKey(start, end)
-	cq.cache.Add(key, &cmd{readOnly: readOnly})
-	return key
+	return r
 }
 
 // Remove is invoked to signal that the command associated with the

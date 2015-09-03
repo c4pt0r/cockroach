@@ -616,22 +616,22 @@ func (r *Replica) checkBatchRequest(bArgs *proto.BatchRequest) error {
 // the queue. Returns the command queue insertion keys, to be supplied
 // to a subsequent invocation of endCmds().
 func (r *Replica) beginCmds(bArgs *proto.BatchRequest) ([]interface{}, error) {
-	r.Lock()
-	var wg sync.WaitGroup
 	var cmdKeys []interface{}
-	for i := range bArgs.Requests {
-		args := bArgs.Requests[i].GetValue().(proto.Request)
-		header := args.Header()
-		// Don't use the command queue for inconsistent reads.
-		if proto.IsReadOnly(args) && header.ReadConsistency == proto.INCONSISTENT {
-			continue
+	// Don't use the command queue for inconsistent reads.
+	if bArgs.ReadConsistency != proto.INCONSISTENT {
+		r.Lock()
+		var wg sync.WaitGroup
+		var spans []keys.Span
+		readOnly := proto.IsReadOnly(bArgs)
+		for i := range bArgs.Requests {
+			h := bArgs.Requests[i].GetValue().(proto.Request).Header()
+			spans = append(spans, keys.Span{Start: h.Key, End: h.EndKey})
 		}
-		readOnly := proto.IsReadOnly(args)
-		r.cmdQ.GetWait(header.Key, header.EndKey, readOnly, &wg)
-		cmdKeys = append(cmdKeys, r.cmdQ.Add(header.Key, header.EndKey, readOnly))
+		r.cmdQ.GetWait(readOnly, &wg, spans...)
+		cmdKeys = append(cmdKeys, r.cmdQ.Add(readOnly, spans...)...)
+		r.Unlock()
+		wg.Wait()
 	}
-	r.Unlock()
-	wg.Wait()
 
 	// Update the incoming timestamp if unset. Wait until after any
 	// preceding command(s) for key range are complete so that the node
