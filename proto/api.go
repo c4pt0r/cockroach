@@ -68,7 +68,7 @@ func IsWrite(args Request) bool {
 	return (args.flags() & isWrite) != 0
 }
 
-// IsReadOnly returns true if the request is read-only.
+// IsReadOnly returns true iff the request is read-only.
 func IsReadOnly(args Request) bool {
 	return IsRead(args) && !IsWrite(args)
 }
@@ -93,7 +93,7 @@ func IsRange(args Request) bool {
 // CanBatch returns true if the request type can be part of a batch request.
 // TODO(tschottdorf): everything should be batchable. Those requests which
 // currently are !CanBatch should simply have to be alone in their batch.
-// That is easier side only BatchRequest must be supported.
+// That is easier since only BatchRequest must be supported.
 func CanBatch(args Request) bool {
 	return IsRead(args) || IsWrite(args)
 }
@@ -318,13 +318,14 @@ func (br *BatchRequest) Add(args Request) {
 	if !union.SetValue(args) {
 		panic(fmt.Sprintf("unable to add %T to batch request", args))
 	}
-	if br.Key == nil || !br.Key.Less(args.Header().Key) {
-		br.Key = args.Header().Key
-	} else if br.EndKey.Less(args.Header().Key) && !br.Key.Equal(args.Header().Key) {
-		br.EndKey = args.Header().Key
+	h := args.Header()
+	if br.Key == nil || !br.Key.Less(h.Key) {
+		br.Key = h.Key
+	} else if br.EndKey.Less(h.Key) && !br.Key.Equal(h.Key) {
+		br.EndKey = h.Key
 	}
-	if br.EndKey == nil || (args.Header().EndKey != nil && br.EndKey.Less(args.Header().EndKey)) {
-		br.EndKey = args.Header().EndKey
+	if br.EndKey == nil || (h.EndKey != nil && br.EndKey.Less(h.EndKey)) {
+		br.EndKey = h.EndKey
 	}
 	br.Requests = append(br.Requests, union)
 }
@@ -534,8 +535,7 @@ func (*LeaderLeaseRequest) flags() int        { return isWrite }
 func (br *BatchRequest) flags() int {
 	var flags int
 	for _, union := range br.Requests {
-		args := union.GetValue().(Request)
-		flags |= args.flags()
+		flags |= union.GetValue().(Request).flags()
 	}
 	return flags
 }

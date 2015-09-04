@@ -472,8 +472,8 @@ message PushTxnResponse {
 // commit them.
 message ResolveIntentRequest {
   optional RequestHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
-  // The successfully pushed intent txn. Success means either the txn
-  // has been pushed forward in time, committed or aborted.
+  // The transaction whose intent is being pushed. The transaction must either
+  // be COMMITTED or ABORTED.
   optional Transaction intent_txn = 2 [(gogoproto.nullable) = false];
 }
 
@@ -488,8 +488,8 @@ message ResolveIntentResponse {
 // of keys to resolve intents created by range ops.
 message ResolveIntentRangeRequest {
   optional RequestHeader header = 1 [(gogoproto.nullable) = false, (gogoproto.embed) = true];
-  // The successfully pushed intent txn. Success means either the txn
-  // has been pushed forward in time, committed or aborted.
+  // The transaction whose intent is being pushed. The transaction must either
+  // be COMMITTED or ABORTED.
   optional Transaction intent_txn = 2 [(gogoproto.nullable) = false];
 }
 

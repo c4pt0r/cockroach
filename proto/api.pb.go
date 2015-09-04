@@ -1030,8 +1030,8 @@ func (m *PushTxnResponse) GetPusheeTxn() *Transaction {
 // commit them.
 type ResolveIntentRequest struct {
 	RequestHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	// The successfully pushed intent txn. Success means either the txn
-	// has been pushed forward in time, committed or aborted.
+	// The transaction whose intent is being pushed. The transaction must either
+	// be COMMITTED or ABORTED.
 	IntentTxn Transaction `protobuf:"bytes,2,opt,name=intent_txn" json:"intent_txn"`
 }
 
@@ -1061,8 +1061,8 @@ func (*ResolveIntentResponse) ProtoMessage()    {}
 // of keys to resolve intents created by range ops.
 type ResolveIntentRangeRequest struct {
 	RequestHeader `protobuf:"bytes,1,opt,name=header,embedded=header" json:"header"`
-	// The successfully pushed intent txn. Success means either the txn
-	// has been pushed forward in time, committed or aborted.
+	// The transaction whose intent is being pushed. The transaction must either
+	// be COMMITTED or ABORTED.
 	IntentTxn Transaction `protobuf:"bytes,2,opt,name=intent_txn" json:"intent_txn"`
 }
 
