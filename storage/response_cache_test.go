@@ -27,13 +27,13 @@ import (
 )
 
 var (
-	incR = proto.IncrementResponse{
-		NewValue: 1,
-	}
 	batchR = proto.BatchResponse{}
 )
 
 func init() {
+	incR := proto.IncrementResponse{
+		NewValue: 1,
+	}
 	batchR.Add(&incR)
 }
 

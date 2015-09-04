@@ -1264,9 +1264,18 @@ func (s *Store) ExecuteCmd(ctx context.Context, args proto.Request) (proto.Respo
 	trace := tracer.FromCtx(ctx)
 	// If the request has a zero timestamp, initialize to this node's clock.
 	header := args.Header()
-	if args.Method() != proto.Batch { // TODO(tschottdorf)
+	// TODO(tschottdorf): remove this first branch when we only have batches here.
+	if args.Method() != proto.Batch {
 		if err := verifyKeys(header.Key, header.EndKey, proto.IsRange(args)); err != nil {
 			return nil, err
+		}
+	} else {
+		for _, union := range args.(*proto.BatchRequest).Requests {
+			arg := union.GetValue().(proto.Request)
+			header := arg.Header()
+			if err := verifyKeys(header.Key, header.EndKey, proto.IsRange(arg)); err != nil {
+				return nil, err
+			}
 		}
 	}
 	if !header.Timestamp.Equal(proto.ZeroTimestamp) {
@@ -1509,8 +1518,8 @@ func (s *Store) ProposeRaftCommand(idKey cmdIDKey, cmd proto.RaftCommand) <-chan
 	if err != nil {
 		log.Fatal(err)
 	}
-	for i := range cmd.Cmd.Requests {
-		args := cmd.Cmd.Requests[i].GetValue().(proto.Request)
+	for _, union := range cmd.Cmd.Requests {
+		args := union.GetValue().(proto.Request)
 		etr, ok := args.(*proto.EndTransactionRequest)
 		if ok && etr.InternalCommitTrigger != nil && etr.InternalCommitTrigger.ChangeReplicasTrigger != nil {
 			if len(cmd.Cmd.Requests) != 1 {

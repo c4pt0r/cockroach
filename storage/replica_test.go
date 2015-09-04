@@ -1392,7 +1392,7 @@ func TestRangeNoTSCacheUpdateOnFailure(t *testing.T) {
 }
 
 // TestRangeNoTimestampIncrementWithinTxn verifies that successive
-// read and write commands, within the same transaction, do not cause
+// read and write commands within the same transaction do not cause
 // the write to receive an incremented timestamp.
 func TestRangeNoTimestampIncrementWithinTxn(t *testing.T) {
 	defer leaktest.AfterTest(t)
