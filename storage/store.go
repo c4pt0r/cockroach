@@ -1497,9 +1497,6 @@ func (s *Store) resolveWriteIntentError(ctx context.Context, wiErr *proto.WriteI
 // channel when it is committed or aborted (but note that committed does
 // mean that it has been applied to the range yet).
 func (s *Store) ProposeRaftCommand(idKey cmdIDKey, cmd proto.RaftCommand) <-chan error {
-	if cmd.Cmd == nil {
-		panic("proposed a nil command")
-	}
 	// Lazily create group. TODO(bdarnell): make this non-lazy
 	err := s.multiraft.CreateGroup(cmd.RangeID)
 	if err != nil {

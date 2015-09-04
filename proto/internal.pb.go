@@ -55,9 +55,9 @@ func (x *InternalValueType) UnmarshalJSON(data []byte) error {
 // A RaftCommand is a command which can be serialized and sent via
 // raft.
 type RaftCommand struct {
-	RangeID      RangeID       `protobuf:"varint,1,opt,name=range_id,casttype=RangeID" json:"range_id"`
-	OriginNodeID RaftNodeID    `protobuf:"varint,2,opt,name=origin_node_id,casttype=RaftNodeID" json:"origin_node_id"`
-	Cmd          *BatchRequest `protobuf:"bytes,3,opt,name=cmd" json:"cmd,omitempty"`
+	RangeID      RangeID      `protobuf:"varint,1,opt,name=range_id,casttype=RangeID" json:"range_id"`
+	OriginNodeID RaftNodeID   `protobuf:"varint,2,opt,name=origin_node_id,casttype=RaftNodeID" json:"origin_node_id"`
+	Cmd          BatchRequest `protobuf:"bytes,3,opt,name=cmd" json:"cmd"`
 }
 
 func (m *RaftCommand) Reset()         { *m = RaftCommand{} }
@@ -78,11 +78,11 @@ func (m *RaftCommand) GetOriginNodeID() RaftNodeID {
 	return 0
 }
 
-func (m *RaftCommand) GetCmd() *BatchRequest {
+func (m *RaftCommand) GetCmd() BatchRequest {
 	if m != nil {
 		return m.Cmd
 	}
-	return nil
+	return BatchRequest{}
 }
 
 // InternalTimeSeriesData is a collection of data samples for some
@@ -314,16 +314,14 @@ func (m *RaftCommand) MarshalTo(data []byte) (int, error) {
 	data[i] = 0x10
 	i++
 	i = encodeVarintInternal(data, i, uint64(m.OriginNodeID))
-	if m.Cmd != nil {
-		data[i] = 0x1a
-		i++
-		i = encodeVarintInternal(data, i, uint64(m.Cmd.Size()))
-		n1, err := m.Cmd.MarshalTo(data[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n1
+	data[i] = 0x1a
+	i++
+	i = encodeVarintInternal(data, i, uint64(m.Cmd.Size()))
+	n1, err := m.Cmd.MarshalTo(data[i:])
+	if err != nil {
+		return 0, err
 	}
+	i += n1
 	return i, nil
 }
 
@@ -524,10 +522,8 @@ func (m *RaftCommand) Size() (n int) {
 	_ = l
 	n += 1 + sovInternal(uint64(m.RangeID))
 	n += 1 + sovInternal(uint64(m.OriginNodeID))
-	if m.Cmd != nil {
-		l = m.Cmd.Size()
-		n += 1 + l + sovInternal(uint64(l))
-	}
+	l = m.Cmd.Size()
+	n += 1 + l + sovInternal(uint64(l))
 	return n
 }
 
@@ -682,9 +678,6 @@ func (m *RaftCommand) Unmarshal(data []byte) error {
 			postIndex := iNdEx + msglen
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
-			}
-			if m.Cmd == nil {
-				m.Cmd = &BatchRequest{}
 			}
 			if err := m.Cmd.Unmarshal(data[iNdEx:postIndex]); err != nil {
 				return err

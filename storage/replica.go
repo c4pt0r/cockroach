@@ -918,7 +918,7 @@ func (r *Replica) proposeRaftCommand(ctx context.Context, bArgs *proto.BatchRequ
 	raftCmd := proto.RaftCommand{
 		RangeID:      r.Desc().RangeID,
 		OriginNodeID: r.rm.RaftNodeID(),
-		Cmd:          bArgs,
+		Cmd:          *bArgs,
 	}
 	cmdID := bArgs.GetOrCreateCmdID(r.rm.Clock().PhysicalNow())
 	idKey := makeCmdIDKey(cmdID)
@@ -957,7 +957,7 @@ func (r *Replica) processRaftCommand(idKey cmdIDKey, index uint64, raftCmd proto
 	// applyRaftCommand will return "expected" errors, but may also indicate
 	// replica corruption (as of now, signaled by a replicaCorruptionError).
 	// We feed its return through maybeSetCorrupt to act when that happens.
-	bReply, err := r.applyRaftCommand(ctx, index, proto.RaftNodeID(raftCmd.OriginNodeID), raftCmd.Cmd)
+	bReply, err := r.applyRaftCommand(ctx, index, proto.RaftNodeID(raftCmd.OriginNodeID), &raftCmd.Cmd)
 	err = r.maybeSetCorrupt(err)
 	execDone()
 
