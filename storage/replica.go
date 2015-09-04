@@ -1406,7 +1406,7 @@ func (r *Replica) resolveIntents(ctx context.Context, intents []proto.Intent) {
 	wg.Add(1)
 	action := func() {
 		// Trace this under the ID of the intent owner.
-		ctx := tracer.ToCtx(ctx, r.rm.Tracer().NewTrace(bArgs.Header()))
+		ctx := tracer.ToCtx(ctx, r.rm.Tracer().NewTrace(bArgsLocal.Header()))
 		if _, err := r.addWriteCmd(ctx, bArgsLocal, &wg); err != nil && log.V(1) {
 			log.Warningc(ctx, "batch resolve failed: %s", err)
 		}
