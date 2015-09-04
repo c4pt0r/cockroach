@@ -588,7 +588,10 @@ func (r *Replica) AddCmd(ctx context.Context, args proto.Request) (reply proto.R
 		defer trace.Epoch("read-write path")()
 		reply, err = r.addWriteCmd(ctx, bArgs, nil)
 	} else if bArgs != nil && len(bArgs.Requests) == 0 {
-		// empty batch; do nothing.
+		// empty batch; shouldn't happen (we could handle it, but it hints
+		// at someone doing weird things, and once we drop the key range
+		// from the header it won't be clear how to route those requests).
+		panic("empty batch")
 	} else {
 		panic(fmt.Sprintf("don't know how to handle command %T: %+v", args, args))
 	}
@@ -1441,7 +1444,6 @@ func (r *Replica) resolveIntents(ctx context.Context, intents []proto.Intent) {
 
 	// The local batch goes directly to Raft.
 	var wg sync.WaitGroup
-	wg.Add(1)
 	action := func() {
 		// Trace this under the ID of the intent owner.
 		ctx := tracer.ToCtx(ctx, r.rm.Tracer().NewTrace(bArgsLocal.Header()))
@@ -1449,13 +1451,15 @@ func (r *Replica) resolveIntents(ctx context.Context, intents []proto.Intent) {
 			log.Warningc(ctx, "batch resolve failed: %s", err)
 		}
 	}
-	if !r.rm.Stopper().RunAsyncTask(action) {
-		// Still run the task. Our caller already has a task and going async
-		// here again is merely for performance, but some intents need to
-		// be resolved because they might block other tasks. See #1684.
-		// Note that handleSkippedIntents has a TODO in case #1684 comes
-		// back.
-		action()
+	if len(bArgsLocal.Requests) > 0 {
+		wg.Add(1)
+		if !r.rm.Stopper().RunAsyncTask(action) {
+			// Still run the task when draining. Our caller already has a task and
+			// going async here again is merely for performance, but some intents
+			// need to be resolved because they might block other tasks. See #1684.
+			// Note that handleSkippedIntents has a TODO in case #1684 comes back.
+			action()
+		}
 	}
 
 	// Resolve all of the intents which aren't local to the Range. This is a
@@ -1473,7 +1477,7 @@ func (r *Replica) resolveIntents(ctx context.Context, intents []proto.Intent) {
 			}
 		}
 	}
-	if !r.rm.Stopper().RunAsyncTask(action) {
+	if len(bArgs.Requests) > 0 && !r.rm.Stopper().RunAsyncTask(action) {
 		// As with local intents, try async to not keep the caller waiting, but
 		// when draining just go ahead and do it synchronously. See #1684.
 		action()
